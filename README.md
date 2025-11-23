@@ -126,20 +126,58 @@ This will add some sample URLs to get you started.
 
 ## Deployment
 
-### Railway / Render / Fly.io
-1. Set environment variables in the platform
-2. Ensure MongoDB Atlas URI is configured
-3. Deploy directly from Git
+### Vercel (Recommended for Serverless)
 
-### Docker (Optional)
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["gunicorn", "run:app", "-b", "0.0.0.0:8000"]
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Deploy to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Add environment variables in Vercel dashboard:
+     - `MONGO_URI` - Your MongoDB Atlas connection string
+     - `SECRET_KEY` - Generate a secure random string
+     - `ADMIN_USERNAME` - Your admin username
+     - `ADMIN_PASSWORD_HASH` - Generated hash from `scripts/hash_password.py`
+     - `FLASK_ENV` - Set to `production`
+   - Deploy!
+
+3. **Important**: Whitelist Vercel's IP addresses in MongoDB Atlas Network Access
+
+### Railway / Render / Fly.io
+
+1. **Connect your repository** to the platform
+2. **Set environment variables** (same as above)
+3. **Deploy** - The platform will automatically detect the Dockerfile or use the Procfile
+
+### Docker
+
+```bash
+# Build the image
+docker build -t url-organizer .
+
+# Run the container
+docker run -p 8000:8000 \
+  -e MONGO_URI="your_mongo_uri" \
+  -e SECRET_KEY="your_secret" \
+  -e ADMIN_USERNAME="admin" \
+  -e ADMIN_PASSWORD_HASH="your_hash" \
+  url-organizer
 ```
+
+## Environment Variables
+
+Required environment variables for production:
+
+- `MONGO_URI` - MongoDB connection string (Atlas recommended)
+- `SECRET_KEY` - Flask secret key (generate a random string)
+- `ADMIN_USERNAME` - Admin username
+- `ADMIN_PASSWORD_HASH` - Argon2 password hash
+- `FLASK_ENV` - Set to `production`
 
 ## License
 

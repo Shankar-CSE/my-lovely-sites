@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, jsonify
 from app.config import Config
-from app.db import get_db, close_db
+from app.db import close_db, test_connection
 import atexit
 
 
@@ -9,9 +9,15 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
-    # Initialize database connection
-    with app.app_context():
-        get_db()
+    # Health check endpoint
+    @app.route('/health')
+    def health():
+        """Health check endpoint for deployment platforms"""
+        db_status = 'connected' if test_connection() else 'disconnected'
+        return jsonify({
+            'status': 'ok',
+            'database': db_status
+        }), 200 if db_status == 'connected' else 503
     
     # Register routes
     from app.routes import public, admin, auth
