@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit URL' if mode == 'edit' else 'Add New URL' }} - URL Organizer{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 text-white">
+            <h1 class="text-2xl font-bold">
+                {% if mode == 'edit' %}
+                    Edit URL
+                {% else %}
+                    Add New URL
+                {% endif %}
+            </h1>
+            <p class="text-primary-100 mt-1">
+                {% if mode == 'edit' %}
+                    Update the URL details below
+                {% else %}
+                    Fill in the details to add a new URL to your collection
+                {% endif %}
+            </p>
+        </div>
+        
+        <!-- Form -->
+        <form method="POST" class="p-8 space-y-6">
+            <!-- Title Field -->
+            <div>
+                <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="title"
+                    name="title" 
+                    value="{{ url.title if url else '' }}"
+                    required
+                    maxlength="200"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="Enter a descriptive title"
+                >
+                <p class="mt-1 text-sm text-gray-500">A clear, descriptive title for your URL</p>
+            </div>
+            
+            <!-- URL Field -->
+            <div>
+                <label for="url" class="block text-sm font-semibold text-gray-700 mb-2">
+                    URL <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="url" 
+                    id="url"
+                    name="url" 
+                    value="{{ url.url if url else '' }}"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition font-mono text-sm"
+                    placeholder="https://example.com"
+                >
+                <p class="mt-1 text-sm text-gray-500">Must start with http:// or https://</p>
+            </div>
+            
+            <!-- Description Field -->
+            <div>
+                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea 
+                    id="description"
+                    name="description" 
+                    rows="4"
+                    maxlength="1000"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
+                    placeholder="Add a brief description (optional)"
+                >{{ url.description if url else '' }}</textarea>
+                <p class="mt-1 text-sm text-gray-500">Optional description to help others understand what this link is about</p>
+            </div>
+            
+            <!-- Tags Field -->
+            <div>
+                <label for="tags" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tags
+                </label>
+                <input 
+                    type="text" 
+                    id="tags"
+                    name="tags" 
+                    value="{{ url.tags|join(', ') if url and url.tags else '' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="python, web, tutorial, documentation"
+                >
+                <p class="mt-1 text-sm text-gray-500">Comma-separated tags to organize this URL (e.g., python, web, tutorial)</p>
+            </div>
+            
+            <!-- Example Preview -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">Preview</h3>
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="font-semibold text-gray-900 mb-1" id="preview-title">Your title will appear here</div>
+                    <div class="text-sm text-gray-600 mb-2" id="preview-description">Your description will appear here</div>
+                    <div class="flex flex-wrap gap-2 mb-2" id="preview-tags"></div>
+                    <div class="text-sm text-primary-600" id="preview-url">https://example.com</div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{{ url_for('admin.dashboard') }}" 
+                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">
+                    Cancel
+                </a>
+                
+                <button 
+                    type="submit" 
+                    class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>{% if mode == 'edit' %}Update URL{% else %}Add URL{% endif %}</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Live preview
+    const titleInput = document.getElementById('title');
+    const urlInput = document.getElementById('url');
+    const descriptionInput = document.getElementById('description');
+    const tagsInput = document.getElementById('tags');
+    
+    const previewTitle = document.getElementById('preview-title');
+    const previewUrl = document.getElementById('preview-url');
+    const previewDescription = document.getElementById('preview-description');
+    const previewTags = document.getElementById('preview-tags');
+    
+    function updatePreview() {
+        previewTitle.textContent = titleInput.value || 'Your title will appear here';
+        previewUrl.textContent = urlInput.value || 'https://example.com';
+        previewDescription.textContent = descriptionInput.value || 'Your description will appear here';
+        
+        // Update tags
+        const tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+        previewTags.innerHTML = '';
+        tags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'px-2 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full';
+            span.textContent = tag;
+            previewTags.appendChild(span);
+        });
+    }
+    
+    titleInput.addEventListener('input', updatePreview);
+    urlInput.addEventListener('input', updatePreview);
+    descriptionInput.addEventListener('input', updatePreview);
+    tagsInput.addEventListener('input', updatePreview);
+    
+    // Initial update
+    updatePreview();
+</script>
+{% endblock %}

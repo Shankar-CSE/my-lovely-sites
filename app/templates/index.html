@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}URL Catalog - URL Organizer{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-3">URL Catalog</h1>
+        <p class="text-lg text-gray-600">Discover and explore organized links</p>
+    </div>
+    
+    <!-- Search and Filter Bar -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <form method="GET" action="{{ url_for('public.index') }}" class="space-y-4">
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- Search Input -->
+                <div class="flex-1">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ search }}"
+                        placeholder="Search URLs by title or description..." 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    >
+                </div>
+                
+                <!-- Search Button -->
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span>Search</span>
+                </button>
+            </div>
+            
+            <!-- Tag Filter -->
+            {% if all_tags %}
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-medium text-gray-700">Filter by tag:</span>
+                <a href="{{ url_for('public.index') }}" 
+                   class="px-3 py-1 rounded-full text-sm font-medium transition {% if not selected_tag %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                    All
+                </a>
+                {% for tag_item in all_tags[:15] %}
+                    <a href="{{ url_for('public.index', tag=tag_item.tag, q=search) }}" 
+                       class="px-3 py-1 rounded-full text-sm font-medium transition {% if selected_tag == tag_item.tag %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                        {{ tag_item.tag }} ({{ tag_item.count }})
+                    </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Results Count -->
+    <div class="flex items-center justify-between">
+        <div class="text-gray-600">
+            <span class="font-semibold text-gray-900">{{ total }}</span> URL{{ 's' if total != 1 else '' }} found
+            {% if search or selected_tag %}
+                <a href="{{ url_for('public.index') }}" class="ml-2 text-primary-600 hover:text-primary-700 font-medium">
+                    Clear filters
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- URL Grid -->
+    {% if urls %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for url in urls %}
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 overflow-hidden group">
+                    <div class="p-6">
+                        <!-- Title -->
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition line-clamp-2">
+                            {{ url.title }}
+                        </h3>
+                        
+                        <!-- Description -->
+                        {% if url.description %}
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                                {{ url.description }}
+                            </p>
+                        {% endif %}
+                        
+                        <!-- Tags -->
+                        {% if url.tags %}
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                {% for tag in url.tags[:5] %}
+                                    <span class="px-2 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full">
+                                        {{ tag }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- URL Link -->
+                        <a href="{{ url.url }}" target="_blank" rel="noopener noreferrer" 
+                           class="inline-flex items-center space-x-2 text-primary-600 hover:text-primary-700 font-medium group">
+                            <span class="text-sm truncate">{{ url.url[:50] }}{% if url.url|length > 50 %}...{% endif %}</span>
+                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if pages > 1 %}
+            <div class="flex justify-center items-center space-x-2 mt-8">
+                {% if page > 1 %}
+                    <a href="{{ url_for('public.index', page=page-1, q=search, tag=selected_tag) }}" 
+                       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                <span class="px-4 py-2 text-gray-700">
+                    Page {{ page }} of {{ pages }}
+                </span>
+                
+                {% if page < pages %}
+                    <a href="{{ url_for('public.index', page=page+1, q=search, tag=selected_tag) }}" 
+                       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No URLs found</h3>
+            <p class="text-gray-600">
+                {% if search or selected_tag %}
+                    Try adjusting your filters or search query
+                {% else %}
+                    The catalog is empty. Check back later!
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
