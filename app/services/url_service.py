@@ -59,7 +59,7 @@ def validate_url(url):
 
 def validate_url_data(data):
     """
-    Validate URL form data
+    Validate URL form data (backward compatibility for single URLs)
     Returns (is_valid, errors_dict)
     """
     errors = {}
@@ -90,16 +90,72 @@ def validate_url_data(data):
     return len(errors) == 0, errors
 
 
+def validate_url_collection(data):
+    """
+    Validate URL collection with array of URLs and subtitles
+    Returns (is_valid, errors_dict)
+    """
+    errors = {}
+    
+    # Validate title
+    title = data.get('title', '').strip()
+    if not title:
+        errors['title'] = "Title is required"
+    elif len(title) > 200:
+        errors['title'] = "Title is too long (max 200 characters)"
+    
+    # Validate description (optional)
+    description = data.get('description', '').strip()
+    if description and len(description) > 1000:
+        errors['description'] = "Description is too long (max 1000 characters)"
+    
+    # Validate tags (optional)
+    tags = normalize_tags(data.get('tags', ''))
+    if len(tags) > 20:
+        errors['tags'] = "Too many tags (max 20)"
+    
+    # Validate URLs array
+    urls = data.get('urls', [])
+    if not urls:
+        errors['urls'] = "At least one URL is required"
+    elif len(urls) > 10:
+        errors['urls'] = "Maximum 10 URLs allowed per collection"
+    else:
+        # Validate each URL and subtitle
+        for idx, url_item in enumerate(urls):
+            url = url_item.get('url', '').strip()
+            subtitle = url_item.get('subtitle', '').strip()
+            
+            is_valid_url, url_error = validate_url(url)
+            if not is_valid_url:
+                errors[f'url_{idx}'] = f"URL #{idx + 1}: {url_error}"
+            
+            if subtitle and len(subtitle) > 200:
+                errors[f'subtitle_{idx}'] = f"Subtitle #{idx + 1} is too long (max 200 characters)"
+    
+    return len(errors) == 0, errors
+
+
 def prepare_url_data(form_data):
     """
     Prepare URL data from form for storage
     """
-    return {
-        'url': form_data.get('url', '').strip(),
-        'title': form_data.get('title', '').strip(),
-        'description': form_data.get('description', '').strip(),
-        'tags': normalize_tags(form_data.get('tags', ''))
-    }
+    # Check if it's a URL collection with array
+    if 'urls' in form_data and isinstance(form_data['urls'], list):
+        return {
+            'title': form_data.get('title', '').strip(),
+            'description': form_data.get('description', '').strip(),
+            'tags': normalize_tags(form_data.get('tags', '')),
+            'urls': form_data['urls']  # Array of {url, subtitle}
+        }
+    else:
+        # Backward compatibility for single URL
+        return {
+            'url': form_data.get('url', '').strip(),
+            'title': form_data.get('title', '').strip(),
+            'description': form_data.get('description', '').strip(),
+            'tags': normalize_tags(form_data.get('tags', ''))
+        }
 
 
 def validate_batch(url_data_list, max_size=50):

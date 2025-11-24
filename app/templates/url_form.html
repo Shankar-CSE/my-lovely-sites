@@ -90,23 +90,71 @@
                 <p class="mt-1 text-sm text-gray-500">Comma-separated tags to organize this URL (e.g., python, web, tutorial)</p>
             </div>
             {% else %}
-            <!-- Batch URL Creation Mode -->
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-700">URL Entries</h3>
-                <span class="text-sm text-gray-500">Maximum 50 URLs per batch</span>
+            <!-- Single Block with Multiple URLs -->
+            <div>
+                <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="title"
+                    name="title" 
+                    required
+                    maxlength="200"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="Enter a descriptive title for this collection"
+                >
+                <p class="mt-1 text-sm text-gray-500">A title for this URL collection</p>
             </div>
             
-            <div id="urlEntries" class="space-y-6"></div>
+            <div>
+                <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea 
+                    id="description"
+                    name="description" 
+                    rows="3"
+                    maxlength="1000"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
+                    placeholder="Add a brief description (optional)"
+                ></textarea>
+                <p class="mt-1 text-sm text-gray-500">Optional description for this collection</p>
+            </div>
             
-            <button 
-                type="button" 
-                id="addUrlBtn"
-                class="w-full py-3 border-2 border-dashed border-primary-300 rounded-lg text-primary-600 hover:bg-primary-50 hover:border-primary-400 font-medium transition flex items-center justify-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <span>Add Another URL</span>
-            </button>
+            <div>
+                <label for="tags" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tags
+                </label>
+                <input 
+                    type="text" 
+                    id="tags"
+                    name="tags" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="python, web, tutorial, documentation"
+                >
+                <p class="mt-1 text-sm text-gray-500">Comma-separated tags (e.g., python, web, tutorial)</p>
+            </div>
+            
+            <!-- URLs Section -->
+            <div class="border-t pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">URLs</h3>
+                    <span class="text-sm text-gray-500">Add multiple URLs with subtitles</span>
+                </div>
+                
+                <div id="urlsContainer" class="space-y-4"></div>
+                
+                <button 
+                    type="button" 
+                    id="addUrlBtn"
+                    class="w-full py-2 mt-4 border-2 border-dashed border-primary-300 rounded-lg text-primary-600 hover:bg-primary-50 hover:border-primary-400 font-medium transition flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span>Add URL</span>
+                </button>
+            </div>
             {% endif %}
             
             <!-- Action Buttons -->
@@ -148,131 +196,105 @@
 </script>
 {% else %}
 <script>
-    // Batch URL creation mode
-    const urlEntriesContainer = document.getElementById('urlEntries');
+    // Single block with multiple URL-subtitle pairs
+    const urlsContainer = document.getElementById('urlsContainer');
     const addUrlBtn = document.getElementById('addUrlBtn');
     const submitBtnText = document.getElementById('submitBtnText');
-    const MAX_URLS = 50;
+    const MAX_URLS = 10;
     let urlCount = 0;
     
-    function createUrlEntry(index) {
-        const entry = document.createElement('div');
-        entry.className = 'border border-gray-300 rounded-lg p-6 space-y-4 bg-gray-50 url-entry';
-        entry.dataset.index = index;
+    function createUrlInput(index) {
+        const urlDiv = document.createElement('div');
+        urlDiv.className = 'border border-gray-200 rounded-lg p-4 bg-white url-item';
+        urlDiv.dataset.index = index;
         
-        entry.innerHTML = `
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-md font-semibold text-gray-700">URL #${index + 1}</h4>
+        urlDiv.innerHTML = `
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-medium text-gray-600">URL #${index + 1}</span>
                 ${index > 0 ? `
-                    <button type="button" class="remove-btn text-red-600 hover:text-red-800 font-medium text-sm flex items-center space-x-1">
+                    <button type="button" class="remove-url-btn text-red-600 hover:text-red-800 text-sm flex items-center space-x-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                         <span>Remove</span>
                     </button>
                 ` : ''}
             </div>
             
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Title <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    name="title[]" 
-                    required
-                    maxlength="200"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
-                    placeholder="Enter a descriptive title"
-                >
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    URL <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="url" 
-                    name="url[]" 
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition font-mono text-sm"
-                    placeholder="https://example.com"
-                >
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                </label>
-                <textarea 
-                    name="description[]" 
-                    rows="3"
-                    maxlength="1000"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
-                    placeholder="Add a brief description (optional)"
-                ></textarea>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Tags
-                </label>
-                <input 
-                    type="text" 
-                    name="tags[]" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
-                    placeholder="python, web, tutorial"
-                >
+            <div class="space-y-3">
+                <div>
+                    <input 
+                        type="url" 
+                        name="urls[]" 
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm font-mono"
+                        placeholder="https://example.com"
+                    >
+                </div>
+                
+                <div>
+                    <input 
+                        type="text" 
+                        name="subtitles[]" 
+                        maxlength="200"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm"
+                        placeholder="Subtitle (optional)"
+                    >
+                </div>
             </div>
         `;
         
         // Add remove button handler
-        const removeBtn = entry.querySelector('.remove-btn');
+        const removeBtn = urlDiv.querySelector('.remove-url-btn');
         if (removeBtn) {
-            removeBtn.addEventListener('click', () => removeUrlEntry(entry));
+            removeBtn.addEventListener('click', () => removeUrlInput(urlDiv));
         }
         
-        return entry;
+        return urlDiv;
     }
     
-    function addUrlEntry() {
+    function addUrlInput() {
         if (urlCount >= MAX_URLS) {
-            alert(`Maximum ${MAX_URLS} URLs allowed per batch`);
+            alert(`Maximum ${MAX_URLS} URLs allowed per block`);
             return;
         }
         
-        const entry = createUrlEntry(urlCount);
-        urlEntriesContainer.appendChild(entry);
+        const urlInput = createUrlInput(urlCount);
+        urlsContainer.appendChild(urlInput);
         urlCount++;
         
         updateUI();
         
-        // Focus on first input of new entry
-        const firstInput = entry.querySelector('input[name="title[]"]');
-        if (firstInput) firstInput.focus();
+        // Focus on URL input
+        const urlField = urlInput.querySelector('input[name="urls[]"]');
+        if (urlField) urlField.focus();
     }
     
-    function removeUrlEntry(entry) {
-        entry.remove();
+    function removeUrlInput(urlDiv) {
+        urlDiv.remove();
         urlCount--;
         updateUI();
-        renumberEntries();
+        renumberUrls();
     }
     
-    function renumberEntries() {
-        const entries = urlEntriesContainer.querySelectorAll('.url-entry');
-        entries.forEach((entry, idx) => {
-            entry.dataset.index = idx;
-            const heading = entry.querySelector('h4');
-            if (heading) {
-                heading.textContent = `URL #${idx + 1}`;
+    function renumberUrls() {
+        const urlItems = urlsContainer.querySelectorAll('.url-item');
+        urlItems.forEach((item, idx) => {
+            item.dataset.index = idx;
+            const label = item.querySelector('span');
+            if (label) {
+                label.textContent = `URL #${idx + 1}`;
             }
         });
     }
     
     function updateUI() {
-        // Update button text
-        submitBtnText.textContent = urlCount > 1 ? `Add ${urlCount} URLs` : 'Add URL';
+        // Update submit button text
+        if (urlCount > 1) {
+            submitBtnText.textContent = `Save Collection with ${urlCount} URLs`;
+        } else {
+            submitBtnText.textContent = 'Save Collection';
+        }
         
         // Disable add button if at max
         addUrlBtn.disabled = urlCount >= MAX_URLS;
@@ -284,10 +306,10 @@
     }
     
     // Add click handler for Add URL button
-    addUrlBtn.addEventListener('click', addUrlEntry);
+    addUrlBtn.addEventListener('click', addUrlInput);
     
-    // Initialize with one empty entry
-    addUrlEntry();
+    // Initialize with one URL input
+    addUrlInput();
 </script>
 {% endif %}
 {% endblock %}
