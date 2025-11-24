@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 text-white">
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 px-8 py-6 text-white transition-colors duration-200">
             <h1 class="text-2xl font-bold">
                 {% if mode == 'edit' %}
                     Edit URL
@@ -40,10 +40,10 @@
                     value="{{ url.title if url else '' }}"
                     required
                     maxlength="200"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition"
                     placeholder="Enter a descriptive collection title"
                 >
-                <p class="mt-1 text-sm text-gray-500">A title for this URL collection</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">A title for this URL collection</p>
             </div>
 
             <div>
@@ -55,10 +55,10 @@
                     name="description"
                     rows="3"
                     maxlength="1000"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition resize-none"
                     placeholder="Add a brief description (optional)"
                 >{{ url.description if url else '' }}</textarea>
-                <p class="mt-1 text-sm text-gray-500">Optional description for this collection</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional description for this collection</p>
             </div>
 
             <div>
@@ -76,19 +76,19 @@
                 <p class="mt-1 text-sm text-gray-500">Comma-separated tags (e.g., python, web, tutorial)</p>
             </div>
 
-            <div class="border-t pt-6">
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700">URLs</h3>
-                    <span class="text-sm text-gray-500">Edit existing URLs or add new ones</span>
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">URLs</h3>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Edit existing URLs or add new ones</span>
                 </div>
 
                 <div id="urlsContainer" data-mode="collection" class="space-y-4">
                     {% for item in url.urls %}
-                    <div class="border border-gray-200 rounded-lg p-4 bg-white url-item" data-index="{{ loop.index0 }}">
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-700 url-item transition-colors duration-200" data-index="{{ loop.index0 }}">
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-medium text-gray-600">URL #{{ loop.index }}</span>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">URL #{{ loop.index }}</span>
                             {% if loop.index0 > 0 %}
-                            <button type="button" class="remove-url-btn text-red-600 hover:text-red-800 text-sm flex items-center space-x-1">
+                            <button type="button" class="remove-url-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm flex items-center space-x-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -103,7 +103,7 @@
                                     name="urls[]"
                                     value="{{ item.url }}"
                                     required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm font-mono"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 transition text-sm font-mono"
                                     placeholder="https://example.com"
                                 >
                             </div>
@@ -113,7 +113,7 @@
                                     name="subtitles[]"
                                     value="{{ item.subtitle }}"
                                     maxlength="200"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 transition text-sm"
                                     placeholder="Subtitle (optional)"
                                 >
                             </div>
@@ -266,15 +266,15 @@
             {% endif %}
             
             <!-- Action Buttons -->
-            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                 <a href="{{ url_for('admin.dashboard') }}" 
-                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition">
                     Cancel
                 </a>
                 
                 <button 
                     type="submit" 
-                    class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition flex items-center space-x-2">
+                    class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-8 py-3 rounded-lg font-semibold transition flex items-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
@@ -393,14 +393,14 @@
     
     function createUrlInput(index) {
         const urlDiv = document.createElement('div');
-        urlDiv.className = 'border border-gray-200 rounded-lg p-4 bg-white url-item';
+        urlDiv.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-700 url-item transition-colors duration-200';
         urlDiv.dataset.index = index;
         
         urlDiv.innerHTML = `
             <div class="flex items-center justify-between mb-3">
-                <span class="text-sm font-medium text-gray-600">URL #${index + 1}</span>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">URL #${index + 1}</span>
                 ${index > 0 ? `
-                    <button type="button" class="remove-url-btn text-red-600 hover:text-red-800 text-sm flex items-center space-x-1">
+                    <button type="button" class="remove-url-btn text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm flex items-center space-x-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -415,7 +415,7 @@
                         type="url" 
                         name="urls[]" 
                         required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm font-mono"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 transition text-sm font-mono"
                         placeholder="https://example.com"
                     >
                 </div>
@@ -425,7 +425,7 @@
                         type="text" 
                         name="subtitles[]" 
                         maxlength="200"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition text-sm"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 transition text-sm"
                         placeholder="Subtitle (optional)"
                     >
                 </div>

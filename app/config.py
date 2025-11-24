@@ -16,6 +16,14 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SECURE = os.getenv('FLASK_ENV') == 'production'
     PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+    
+    # Security headers
+    SECURITY_HEADERS = {
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+    }
 
 
 class ProductionConfig(Config):
@@ -23,6 +31,8 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = True
+    # Enforce HTTPS
+    PREFERRED_URL_SCHEME = 'https'
 
 
 class DevelopmentConfig(Config):

@@ -1,13 +1,35 @@
 from flask import Flask, jsonify
-from app.config import Config
+from app.config import config
 from app.db import close_db, test_connection
 import atexit
 
 
-def create_app(config_class=Config):
+def create_app(config_name='default'):
     """Flask application factory"""
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    
+    # Load configuration based on environment
+    app.config.from_object(config[config_name])
+    
+    # Add security headers to all responses
+    @app.after_request
+    def add_security_headers(response):
+        """Add security headers to all responses"""
+        if hasattr(app.config, 'SECURITY_HEADERS'):
+            for header, value in app.config['SECURITY_HEADERS'].items():
+                response.headers[header] = value
+        return response
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(e):
+        """Handle 404 errors"""
+        return jsonify({'error': 'Not found'}), 404
+    
+    @app.errorhandler(500)
+    def internal_error(e):
+        """Handle 500 errors"""
+        return jsonify({'error': 'Internal server error'}), 500
     
     # Health check endpoint
     @app.route('/health')

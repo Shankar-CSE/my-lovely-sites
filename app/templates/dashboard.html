@@ -5,15 +5,14 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Header with Stats -->
-    <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl shadow-lg p-8 text-white">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
-                <p class="text-primary-100">Manage your URL collection</p>
-            </div>
+    <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 rounded-2xl shadow-lg p-8 text-white transition-colors duration-200">
+            <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Manage your URL collections</p>
             
             <a href="{{ url_for('admin.create_url') }}" 
-               class="bg-white text-primary-600 hover:bg-primary-50 px-6 py-3 rounded-lg font-semibold transition flex items-center space-x-2 shadow-lg">
+               class="bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 px-6 py-3 rounded-lg font-semibold transition flex items-center space-x-2 shadow-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -68,7 +67,8 @@
     </div>
     
     <!-- Search and Filter Bar -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <!-- Search and Filter -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 mb-6 transition-colors duration-200">
         <form method="GET" action="{{ url_for('admin.dashboard') }}" class="space-y-4">
             <div class="flex flex-col md:flex-row gap-4">
                 <!-- Search Input -->
@@ -78,12 +78,12 @@
                         name="q" 
                         value="{{ search }}"
                         placeholder="Search URLs..." 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition"
                     >
                 </div>
                 
                 <!-- Search Button -->
-                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition">
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-8 py-3 rounded-lg font-medium transition">
                     Search
                 </button>
             </div>
@@ -91,14 +91,14 @@
             <!-- Tag Filter -->
             {% if stats.tags %}
             <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-medium text-gray-700">Filter by tag:</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by tag:</span>
                 <a href="{{ url_for('admin.dashboard') }}" 
-                   class="px-3 py-1 rounded-full text-sm font-medium transition {% if not selected_tag %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                   class="px-3 py-1 rounded-full text-sm font-medium transition {% if not selected_tag %}bg-primary-600 dark:bg-primary-700 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
                     All
                 </a>
                 {% for tag_item in stats.tags[:15] %}
                     <a href="{{ url_for('admin.dashboard', tag=tag_item.tag, q=search) }}" 
-                       class="px-3 py-1 rounded-full text-sm font-medium transition {% if selected_tag == tag_item.tag %}bg-primary-600 text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                       class="px-3 py-1 rounded-full text-sm font-medium transition {% if selected_tag == tag_item.tag %}bg-primary-600 dark:bg-primary-700 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
                         {{ tag_item.tag }} ({{ tag_item.count }})
                     </a>
                 {% endfor %}
@@ -109,33 +109,34 @@
     
     <!-- URL Table -->
     {% if urls %}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- URLs List -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                 Title & URL
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                 Tags
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                 Created
                             </th>
-                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {% for url in urls %}
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                             <td class="px-6 py-4">
                                 <div class="max-w-md">
-                                    <div class="font-semibold text-gray-900 mb-1">{{ url.title }}</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white mb-1">{{ url.title }}</div>
                                     {% if url.description %}
-                                        <div class="text-sm text-gray-600 mb-2 line-clamp-2">{{ url.description }}</div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ url.description }}</p>
                                     {% endif %}
                                     
                                     <!-- Display URL array or single URL -->
@@ -144,10 +145,10 @@
                                             {% for url_item in url.urls[:3] %}
                                                 <div class="text-sm">
                                                     {% if url_item.subtitle %}
-                                                        <span class="text-xs text-gray-500">{{ url_item.subtitle }}:</span>
+                                                        <span class="text-gray-500 dark:text-gray-400 text-xs">{{ url_item.subtitle }}</span>
                                                     {% endif %}
                                                     <a href="{{ url_item.url }}" target="_blank" rel="noopener noreferrer" 
-                                                       class="text-primary-600 hover:text-primary-700 inline-flex items-center space-x-1">
+                                                       class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 inline-flex items-center space-x-1">
                                                         <span class="truncate max-w-xs">{{ url_item.url }}</span>
                                                         <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -156,12 +157,12 @@
                                                 </div>
                                             {% endfor %}
                                             {% if url.urls|length > 3 %}
-                                                <div class="text-xs text-gray-500">+ {{ url.urls|length - 3 }} more URLs</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">+ {{ url.urls|length - 3 }} more URLs</div>
                                             {% endif %}
                                         </div>
                                     {% elif url.url %}
                                         <a href="{{ url.url }}" target="_blank" rel="noopener noreferrer" 
-                                           class="text-sm text-primary-600 hover:text-primary-700 flex items-center space-x-1 w-fit">
+                                           class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center space-x-1 w-fit">
                                             <span class="truncate max-w-xs">{{ url.url }}</span>
                                             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -173,24 +174,24 @@
                             <td class="px-6 py-4">
                                 <div class="flex flex-wrap gap-1">
                                     {% for tag in url.tags[:5] %}
-                                        <span class="px-2 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full">
+                                        <span class="px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">
                                             {{ tag }}
                                         </span>
                                     {% endfor %}
                                     {% if url.tags|length > 5 %}
-                                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                                        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full">
                                             +{{ url.tags|length - 5 }}
                                         </span>
                                     {% endif %}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                                 {{ url.created_at.strftime('%Y-%m-%d') if url.created_at else 'N/A' }}
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end space-x-2">
                                     <a href="{{ url_for('admin.edit_url', url_id=url._id) }}" 
-                                       class="text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition"
+                                       class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/30 transition"
                                        title="Edit">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -199,7 +200,7 @@
                                     <form method="POST" action="{{ url_for('admin.delete_url', url_id=url._id) }}" 
                                           onsubmit="return confirm('Are you sure you want to delete this URL?');" class="inline">
                                         <button type="submit" 
-                                                class="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition"
+                                                class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition"
                                                 title="Delete">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -220,18 +221,18 @@
             <div class="flex justify-center items-center space-x-2 mt-6">
                 {% if page > 1 %}
                     <a href="{{ url_for('admin.dashboard', page=page-1, q=search, tag=selected_tag) }}" 
-                       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                       class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition">
                         Previous
                     </a>
                 {% endif %}
                 
-                <span class="px-4 py-2 text-gray-700">
+                <span class="px-4 py-2 text-gray-700 dark:text-gray-300">
                     Page {{ page }} of {{ pages }}
                 </span>
                 
                 {% if page < pages %}
                     <a href="{{ url_for('admin.dashboard', page=page+1, q=search, tag=selected_tag) }}" 
-                       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                       class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition">
                         Next
                     </a>
                 {% endif %}
@@ -239,12 +240,12 @@
         {% endif %}
     {% else %}
         <!-- Empty State -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center transition-colors duration-200">
+            <svg class="w-24 h-24 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
             </svg>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No URLs found</h3>
-            <p class="text-gray-600 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No URLs found</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
                 {% if search or selected_tag %}
                     Try adjusting your filters or search query
                 {% else %}
@@ -252,7 +253,7 @@
                 {% endif %}
             </p>
             <a href="{{ url_for('admin.create_url') }}" 
-               class="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition">
+               class="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-medium transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
