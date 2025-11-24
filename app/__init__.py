@@ -15,9 +15,9 @@ def create_app(config_name='default'):
     @app.after_request
     def add_security_headers(response):
         """Add security headers to all responses"""
-        if hasattr(app.config, 'SECURITY_HEADERS'):
-            for header, value in app.config['SECURITY_HEADERS'].items():
-                response.headers[header] = value
+        security_headers = app.config.get('SECURITY_HEADERS', {})
+        for header, value in security_headers.items():
+            response.headers[header] = value
         return response
     
     # Error handlers
