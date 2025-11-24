@@ -6,18 +6,16 @@ bp = Blueprint('public', __name__)
 
 @bp.route('/')
 def index():
-    """Public URL catalog page"""
+    """Public URL catalog page - displays all URLs"""
     # Get query parameters
     search = request.args.get('q', '').strip()
     tag = request.args.get('tag', '').strip()
-    page = request.args.get('page', 1, type=int)
     
-    # Get URLs with filters
+    # Get all URLs with filters (no pagination)
     result = url_repo.find_all(
         search=search if search else None,
         tag=tag if tag else None,
-        page=page,
-        per_page=24
+        per_page=None  # Fetch all URLs
     )
     
     # Get all tags for filter
@@ -27,8 +25,6 @@ def index():
         'index.html',
         urls=result['urls'],
         total=result['total'],
-        page=result['page'],
-        pages=result['pages'],
         search=search,
         selected_tag=tag,
         all_tags=all_tags

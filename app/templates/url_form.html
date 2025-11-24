@@ -24,8 +24,9 @@
         </div>
         
         <!-- Form -->
-        <form method="POST" class="p-8 space-y-6">
-            <!-- Title Field -->
+        <form method="POST" class="p-8 space-y-6" id="urlForm">
+            {% if mode == 'edit' %}
+            <!-- Single URL Edit Mode -->
             <div>
                 <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
                     Title <span class="text-red-500">*</span>
@@ -43,7 +44,6 @@
                 <p class="mt-1 text-sm text-gray-500">A clear, descriptive title for your URL</p>
             </div>
             
-            <!-- URL Field -->
             <div>
                 <label for="url" class="block text-sm font-semibold text-gray-700 mb-2">
                     URL <span class="text-red-500">*</span>
@@ -60,7 +60,6 @@
                 <p class="mt-1 text-sm text-gray-500">Must start with http:// or https://</p>
             </div>
             
-            <!-- Description Field -->
             <div>
                 <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
                     Description
@@ -76,7 +75,6 @@
                 <p class="mt-1 text-sm text-gray-500">Optional description to help others understand what this link is about</p>
             </div>
             
-            <!-- Tags Field -->
             <div>
                 <label for="tags" class="block text-sm font-semibold text-gray-700 mb-2">
                     Tags
@@ -91,17 +89,25 @@
                 >
                 <p class="mt-1 text-sm text-gray-500">Comma-separated tags to organize this URL (e.g., python, web, tutorial)</p>
             </div>
-            
-            <!-- Example Preview -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h3 class="text-sm font-semibold text-gray-700 mb-2">Preview</h3>
-                <div class="bg-white rounded-lg p-4 border border-gray-200">
-                    <div class="font-semibold text-gray-900 mb-1" id="preview-title">Your title will appear here</div>
-                    <div class="text-sm text-gray-600 mb-2" id="preview-description">Your description will appear here</div>
-                    <div class="flex flex-wrap gap-2 mb-2" id="preview-tags"></div>
-                    <div class="text-sm text-primary-600" id="preview-url">https://example.com</div>
-                </div>
+            {% else %}
+            <!-- Batch URL Creation Mode -->
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-700">URL Entries</h3>
+                <span class="text-sm text-gray-500">Maximum 50 URLs per batch</span>
             </div>
+            
+            <div id="urlEntries" class="space-y-6"></div>
+            
+            <button 
+                type="button" 
+                id="addUrlBtn"
+                class="w-full py-3 border-2 border-dashed border-primary-300 rounded-lg text-primary-600 hover:bg-primary-50 hover:border-primary-400 font-medium transition flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <span>Add Another URL</span>
+            </button>
+            {% endif %}
             
             <!-- Action Buttons -->
             <div class="flex items-center justify-between pt-6 border-t border-gray-200">
@@ -116,47 +122,172 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <span>{% if mode == 'edit' %}Update URL{% else %}Add URL{% endif %}</span>
+                    <span id="submitBtnText">{% if mode == 'edit' %}Update URL{% else %}Add URLs{% endif %}</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+{% if mode == 'edit' %}
 <script>
-    // Live preview
+    // Live preview for edit mode
     const titleInput = document.getElementById('title');
     const urlInput = document.getElementById('url');
     const descriptionInput = document.getElementById('description');
     const tagsInput = document.getElementById('tags');
     
-    const previewTitle = document.getElementById('preview-title');
-    const previewUrl = document.getElementById('preview-url');
-    const previewDescription = document.getElementById('preview-description');
-    const previewTags = document.getElementById('preview-tags');
+    function updateSinglePreview() {
+        // Edit mode preview logic if needed
+    }
     
-    function updatePreview() {
-        previewTitle.textContent = titleInput.value || 'Your title will appear here';
-        previewUrl.textContent = urlInput.value || 'https://example.com';
-        previewDescription.textContent = descriptionInput.value || 'Your description will appear here';
+    if (titleInput) titleInput.addEventListener('input', updateSinglePreview);
+    if (urlInput) urlInput.addEventListener('input', updateSinglePreview);
+    if (descriptionInput) descriptionInput.addEventListener('input', updateSinglePreview);
+    if (tagsInput) tagsInput.addEventListener('input', updateSinglePreview);
+</script>
+{% else %}
+<script>
+    // Batch URL creation mode
+    const urlEntriesContainer = document.getElementById('urlEntries');
+    const addUrlBtn = document.getElementById('addUrlBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const MAX_URLS = 50;
+    let urlCount = 0;
+    
+    function createUrlEntry(index) {
+        const entry = document.createElement('div');
+        entry.className = 'border border-gray-300 rounded-lg p-6 space-y-4 bg-gray-50 url-entry';
+        entry.dataset.index = index;
         
-        // Update tags
-        const tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
-        previewTags.innerHTML = '';
-        tags.forEach(tag => {
-            const span = document.createElement('span');
-            span.className = 'px-2 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full';
-            span.textContent = tag;
-            previewTags.appendChild(span);
+        entry.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h4 class="text-md font-semibold text-gray-700">URL #${index + 1}</h4>
+                ${index > 0 ? `
+                    <button type="button" class="remove-btn text-red-600 hover:text-red-800 font-medium text-sm flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span>Remove</span>
+                    </button>
+                ` : ''}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Title <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="title[]" 
+                    required
+                    maxlength="200"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="Enter a descriptive title"
+                >
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    URL <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="url" 
+                    name="url[]" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition font-mono text-sm"
+                    placeholder="https://example.com"
+                >
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Description
+                </label>
+                <textarea 
+                    name="description[]" 
+                    rows="3"
+                    maxlength="1000"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition resize-none"
+                    placeholder="Add a brief description (optional)"
+                ></textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Tags
+                </label>
+                <input 
+                    type="text" 
+                    name="tags[]" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                    placeholder="python, web, tutorial"
+                >
+            </div>
+        `;
+        
+        // Add remove button handler
+        const removeBtn = entry.querySelector('.remove-btn');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => removeUrlEntry(entry));
+        }
+        
+        return entry;
+    }
+    
+    function addUrlEntry() {
+        if (urlCount >= MAX_URLS) {
+            alert(`Maximum ${MAX_URLS} URLs allowed per batch`);
+            return;
+        }
+        
+        const entry = createUrlEntry(urlCount);
+        urlEntriesContainer.appendChild(entry);
+        urlCount++;
+        
+        updateUI();
+        
+        // Focus on first input of new entry
+        const firstInput = entry.querySelector('input[name="title[]"]');
+        if (firstInput) firstInput.focus();
+    }
+    
+    function removeUrlEntry(entry) {
+        entry.remove();
+        urlCount--;
+        updateUI();
+        renumberEntries();
+    }
+    
+    function renumberEntries() {
+        const entries = urlEntriesContainer.querySelectorAll('.url-entry');
+        entries.forEach((entry, idx) => {
+            entry.dataset.index = idx;
+            const heading = entry.querySelector('h4');
+            if (heading) {
+                heading.textContent = `URL #${idx + 1}`;
+            }
         });
     }
     
-    titleInput.addEventListener('input', updatePreview);
-    urlInput.addEventListener('input', updatePreview);
-    descriptionInput.addEventListener('input', updatePreview);
-    tagsInput.addEventListener('input', updatePreview);
+    function updateUI() {
+        // Update button text
+        submitBtnText.textContent = urlCount > 1 ? `Add ${urlCount} URLs` : 'Add URL';
+        
+        // Disable add button if at max
+        addUrlBtn.disabled = urlCount >= MAX_URLS;
+        if (urlCount >= MAX_URLS) {
+            addUrlBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            addUrlBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
     
-    // Initial update
-    updatePreview();
+    // Add click handler for Add URL button
+    addUrlBtn.addEventListener('click', addUrlEntry);
+    
+    // Initialize with one empty entry
+    addUrlEntry();
 </script>
+{% endif %}
 {% endblock %}

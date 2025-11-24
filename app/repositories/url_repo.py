@@ -22,6 +22,19 @@ class URLRepository:
         except DuplicateKeyError:
             return None
     
+    def create_many(self, url_data_list):
+        """Create multiple URL entries, skipping duplicates"""
+        results = {'success': [], 'duplicates': [], 'errors': []}
+        
+        for url_data in url_data_list:
+            result = self.create(url_data)
+            if result:
+                results['success'].append(result)
+            else:
+                results['duplicates'].append(url_data.get('url', 'Unknown URL'))
+        
+        return results
+    
     def find_by_id(self, url_id):
         """Find a URL by ID"""
         try:
@@ -45,15 +58,27 @@ class URLRepository:
         if filters:
             query.update(filters)
         
-        # Calculate skip
+        # Get total count
+        total = self.collection.count_documents(query)
+        
+        # Handle unpaginated requests (per_page=None means fetch all)
+        if per_page is None:
+            cursor = self.collection.find(query).sort('created_at', -1)
+            urls = list(cursor)
+            return {
+                'urls': urls,
+                'total': total,
+                'page': 1,
+                'per_page': total,
+                'pages': 1
+            }
+        
+        # Calculate skip for pagination
         skip = (page - 1) * per_page
         
         # Get results with pagination
         cursor = self.collection.find(query).sort('created_at', -1).skip(skip).limit(per_page)
         urls = list(cursor)
-        
-        # Get total count
-        total = self.collection.count_documents(query)
         
         return {
             'urls': urls,

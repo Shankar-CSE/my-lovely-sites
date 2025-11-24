@@ -102,6 +102,31 @@ def prepare_url_data(form_data):
     }
 
 
+def validate_batch(url_data_list, max_size=50):
+    """
+    Validate a batch of URL data items
+    Returns (is_valid, valid_items, errors_list)
+    """
+    if len(url_data_list) > max_size:
+        return False, [], [f'Batch size exceeds maximum of {max_size} URLs']
+    
+    if len(url_data_list) == 0:
+        return False, [], ['No URLs provided']
+    
+    valid_items = []
+    errors_list = []
+    
+    for idx, data in enumerate(url_data_list):
+        is_valid, errors = validate_url_data(data)
+        if is_valid:
+            valid_items.append(data)
+        else:
+            error_msg = f"URL #{idx + 1}: " + ", ".join([f"{k}: {v}" for k, v in errors.items()])
+            errors_list.append(error_msg)
+    
+    return len(valid_items) > 0, valid_items, errors_list
+
+
 def get_domain(url):
     """Extract domain from URL"""
     try:
