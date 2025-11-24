@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.services.auth_service import login_required
 from app.repositories.url_repo import url_repo
-from app.services.url_service import validate_url_data, prepare_url_data
+from app.services.url_service import validate_url_data, prepare_url_data, validate_url_collection
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -109,23 +109,69 @@ def edit_url(url_id):
         return redirect(url_for('admin.dashboard'))
     
     if request.method == 'POST':
-        # Validate data
-        is_valid, errors = validate_url_data(request.form)
-        
-        if is_valid:
-            # Prepare and update data
-            url_data = prepare_url_data(request.form)
-            success = url_repo.update(url_id, url_data)
-            
-            if success:
-                flash('URL updated successfully!', 'success')
-                return redirect(url_for('admin.dashboard'))
+        # Detect collection edit (urls[] present)
+        urls_list = request.form.getlist('urls[]')
+        subtitles_list = request.form.getlist('subtitles[]')
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        tags = request.form.get('tags', '').strip()
+
+        has_collection = any(u.strip() for u in urls_list)
+
+        if has_collection:
+            # Build collection items
+            url_items = []
+            for i, raw_url in enumerate(urls_list):
+                raw_url = raw_url.strip()
+                if not raw_url:
+                    continue
+                subtitle = subtitles_list[i].strip() if i < len(subtitles_list) else ''
+                url_items.append({'url': raw_url, 'subtitle': subtitle})
+
+            if not url_items:
+                flash('At least one URL is required', 'error')
+            elif not title:
+                flash('Title is required', 'error')
             else:
-                flash('Failed to update URL', 'error')
+                # Validate collection
+                is_valid, errors = validate_url_collection({
+                    'title': title,
+                    'description': description,
+                    'tags': tags,
+                    'urls': url_items
+                })
+
+                if is_valid:
+                    update_data = prepare_url_data({
+                        'title': title,
+                        'description': description,
+                        'tags': tags,
+                        'urls': url_items
+                    })
+                    success = url_repo.update(url_id, update_data)
+                    if success:
+                        flash(f'Collection updated successfully with {len(url_items)} URL(s)!', 'success')
+                        return redirect(url_for('admin.dashboard'))
+                    else:
+                        flash('Failed to update collection', 'error')
+                else:
+                    for field, error in errors.items():
+                        flash(f'{field.title()}: {error}', 'error')
         else:
-            # Show validation errors
-            for field, error in errors.items():
-                flash(f'{field.title()}: {error}', 'error')
+            # Fallback to single URL update
+            is_valid, errors = validate_url_data(request.form)
+
+            if is_valid:
+                update_data = prepare_url_data(request.form)
+                success = url_repo.update(url_id, update_data)
+                if success:
+                    flash('URL updated successfully!', 'success')
+                    return redirect(url_for('admin.dashboard'))
+                else:
+                    flash('Failed to update URL', 'error')
+            else:
+                for field, error in errors.items():
+                    flash(f'{field.title()}: {error}', 'error')
     
     return render_template('url_form.html', url=url, mode='edit')
 
