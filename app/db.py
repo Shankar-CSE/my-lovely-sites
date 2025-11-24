@@ -62,8 +62,9 @@ def _ensure_indexes():
     """Create necessary database indexes"""
     urls = _db.urls
     
-    # Unique index on URL
-    urls.create_index([('url', ASCENDING)], unique=True)
+    # Unique sparse index on URL (only applies to single URLs, not collections)
+    # Sparse index allows documents without 'url' field (collections with 'urls' array)
+    urls.create_index([('url', ASCENDING)], unique=True, sparse=True)
     
     # Text index for search
     urls.create_index([
