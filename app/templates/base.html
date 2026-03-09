@@ -45,6 +45,31 @@
         body {
             font-family: 'Inter', system-ui, sans-serif;
         }
+
+        /* Subtle background pattern for more visual interest */
+        .app-shell {
+            position: relative;
+        }
+
+        .app-shell::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 0 0, rgba(59,130,246,0.12), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(56,189,248,0.08), transparent 55%);
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(255,255,255,0.9);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15,23,42,0.92);
+        }
     </style>
     
     <script>
@@ -56,23 +81,28 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+<body class="bg-slate-950/95 dark:bg-slate-950 min-h-screen transition-colors duration-200 app-shell">
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+    <nav class="backdrop-blur bg-white/80 dark:bg-slate-900/80 shadow-sm border-b border-slate-200/70 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 gap-4">
                 <div class="flex items-center">
-                    <a href="{{ url_for('public.index') }}" class="flex items-center space-x-2">
-                        <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ url_for('public.index') }}" class="flex items-center space-x-3 group">
+                        <div class="h-9 w-9 rounded-xl bg-primary-600/10 dark:bg-primary-500/10 flex items-center justify-center ring-1 ring-primary-500/40 group-hover:ring-primary-400/70 transition">
+                            <svg class="w-5 h-5 text-primary-700 dark:text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                        </svg>
-                        <span class="text-xl font-bold text-gray-900 dark:text-white">URL Organizer</span>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold tracking-tight text-slate-700 dark:text-slate-200 uppercase">My Lovely Sites</span>
+                            <span class="text-lg font-semibold text-slate-900 dark:text-white leading-tight">URL Organizer</span>
+                        </div>
                     </a>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
                     <!-- Dark Mode Toggle -->
-                    <button id="themeToggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <button id="themeToggle" class="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition ring-1 ring-slate-200/80 dark:ring-slate-700">
                         <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
@@ -81,21 +111,21 @@
                         </svg>
                     </button>
                     
-                    <a href="{{ url_for('public.index') }}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition">
+                    <a href="{{ url_for('public.index') }}" class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                         Home
                     </a>
                     
                     {% if session.get('logged_in') %}
-                        <a href="{{ url_for('admin.dashboard') }}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition">
+                        <a href="{{ url_for('admin.dashboard') }}" class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                             Dashboard
                         </a>
                         <form method="POST" action="{{ url_for('auth.logout') }}" class="inline">
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium transition">
+                            <button type="submit" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
                                 Logout
                             </button>
                         </form>
                     {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-4 py-2 rounded-lg font-medium transition">
+                        <a href="{{ url_for('auth.login') }}" class="inline-flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
                             Admin Login
                         </a>
                     {% endif %}
@@ -107,14 +137,16 @@
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
                 {% for category, message in messages %}
-                    <div class="rounded-lg p-4 mb-4 {% if category == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif category == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif category == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="glass-panel rounded-xl p-4 mb-3 shadow-sm border {% if category == 'error' %}border-red-200/70 text-red-900 bg-red-50/90 dark:border-red-900/60 dark:bg-red-900/30 dark:text-red-100{% elif category == 'success' %}border-emerald-200/70 text-emerald-900 bg-emerald-50/90 dark:border-emerald-900/60 dark:bg-emerald-900/30 dark:text-emerald-100{% elif category == 'warning' %}border-amber-200/70 text-amber-900 bg-amber-50/90 dark:border-amber-900/60 dark:bg-amber-900/30 dark:text-amber-100{% else %}border-blue-200/70 text-blue-900 bg-blue-50/90 dark:border-blue-900/60 dark:bg-blue-900/30 dark:text-blue-100{% endif %}">
+                        <div class="flex items-start gap-2.5">
+                            <svg class="w-5 h-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                             </svg>
-                            <span class="font-medium">{{ message }}</span>
+                            <div class="text-sm leading-relaxed">
+                                <p class="font-semibold">{{ message }}</p>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -123,16 +155,19 @@
     {% endwith %}
     
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {% block content %}{% endblock %}
     </main>
     
     <!-- Footer -->
-    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16 transition-colors duration-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="text-center text-gray-600 dark:text-gray-400">
-                <p class="text-sm">Built with Flask, MongoDB, and Tailwind CSS</p>
-                <p class="text-xs mt-2">© 2025 URL Organizer</p>
+    <footer class="mt-16 border-t border-slate-200/70 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <p class="flex items-center gap-1.5">
+                    <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                    Production-ready Flask + MongoDB URL catalog
+                </p>
+                <p class="text-[11px] sm:text-xs">© 2025–{{ now().year if now else '2025' }} URL Organizer. All rights reserved.</p>
             </div>
         </div>
     </footer>

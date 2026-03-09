@@ -3,91 +3,173 @@
 {% block title %}URL Catalog - URL Organizer{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-3">URL Catalog</h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400">Discover and explore organized links</p>
-    </div>
-    
-    <!-- Search and Filter Bar -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-        <form method="GET" action="{{ url_for('public.index') }}" class="space-y-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Search Input -->
-                <div class="flex-1">
-                    <input 
-                        type="text" 
-                        name="q" 
-                        value="{{ search }}"
-                        placeholder="Search URLs by title or description..." 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition"
-                    >
+<div class="space-y-8">
+    <!-- Hero -->
+    <section class="grid gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-center">
+        <div class="space-y-4">
+            <p class="inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 w-fit">
+                <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+                Curated catalog of your best links
+            </p>
+            <div class="space-y-3">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                    A smarter home for
+                    <span class="bg-gradient-to-r from-primary-500 to-cyan-400 bg-clip-text text-transparent">your favorite URLs</span>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl">
+                    Search, filter, and explore neatly organized links. Perfect for personal knowledge gardens, team bookmarks, and curated resources.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                <div class="inline-flex items-center gap-1.5 rounded-full bg-slate-900 text-slate-100 px-3 py-1 text-[11px] dark:bg-slate-100 dark:text-slate-900">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    {{ total }} URL{{ 's' if total != 1 else '' }} tracked
                 </div>
-                
+                <span>Fast search · Tag filters · Dark mode</span>
+            </div>
+        </div>
+
+        <!-- Highlight card -->
+        <div class="glass-panel rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-[0_18px_45px_rgba(15,23,42,0.35)] px-5 py-4 sm:px-6 sm:py-5">
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 mb-1">Snapshot</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Most popular tags right now</p>
+                </div>
+                <div class="rounded-xl bg-slate-900 text-slate-100 dark:bg-slate-100 dark:text-slate-900 px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1.5">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                    Live view
+                </div>
+            </div>
+
+            {% if all_tags %}
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    {% for tag_item in all_tags[:8] %}
+                        <span class="inline-flex items-center gap-1 rounded-full border border-slate-200/90 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200">
+                            <span class="h-1.5 w-1.5 rounded-full bg-primary-500/80"></span>
+                            {{ tag_item.tag }}
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500">×{{ tag_item.count }}</span>
+                        </span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Tags will appear here as you start adding URLs.</p>
+            {% endif %}
+
+            <div class="flex items-center justify-between border-t border-slate-200/80 dark:border-slate-800 pt-3 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <p>Use tags to build lightweight knowledge systems instead of endless browser tabs.</p>
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7m-4-14L3 12l7 7"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search and Filter Bar -->
+    <div class="glass-panel rounded-2xl shadow-md border border-slate-200/70 dark:border-slate-800 px-4 py-4 sm:px-6 sm:py-5">
+        <form method="GET" action="{{ url_for('public.index') }}" class="space-y-4">
+            <div class="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch">
+                <!-- Search Input -->
+                <div class="flex-1 flex items-stretch gap-2">
+                    <div class="relative flex-1">
+                        <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
+                        <input
+                            type="text"
+                            name="q"
+                            value="{{ search }}"
+                            placeholder="Search by title, description, or URL…"
+                            class="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary-500/80 focus:border-primary-500/60 transition"
+                        >
+                    </div>
+                </div>
+
                 <!-- Search Button -->
-                <button type="submit" class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white px-8 py-3 rounded-lg font-medium transition flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-cyan-500 hover:from-primary-500 hover:to-cyan-400 text-white px-6 py-2.5 text-sm font-semibold shadow-sm hover:shadow-md transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                     <span>Search</span>
                 </button>
             </div>
-            
+
             <!-- Tag Filter -->
             {% if all_tags %}
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by tag:</span>
-                <a href="{{ url_for('public.index') }}" 
-                   class="px-3 py-1 rounded-full text-sm font-medium transition {% if not selected_tag %}bg-primary-600 dark:bg-primary-700 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
+            <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 mr-1">Tags</span>
+                <a href="{{ url_for('public.index') }}"
+                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition
+                          {% if not selected_tag %}
+                              border-primary-500/80 bg-primary-500 text-white shadow-sm
+                          {% else %}
+                              border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800
+                          {% endif %}">
                     All
                 </a>
                 {% for tag_item in all_tags[:15] %}
-                    <a href="{{ url_for('public.index', tag=tag_item.tag, q=search) }}" 
-                       class="px-3 py-1 rounded-full text-sm font-medium transition {% if selected_tag == tag_item.tag %}bg-primary-600 dark:bg-primary-700 text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
-                        {{ tag_item.tag }} ({{ tag_item.count }})
+                    <a href="{{ url_for('public.index', tag=tag_item.tag, q=search) }}"
+                       class="px-3 py-1.5 rounded-full text-xs font-medium border transition
+                              {% if selected_tag == tag_item.tag %}
+                                  border-primary-500/80 bg-primary-500 text-white shadow-sm
+                              {% else %}
+                                  border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800
+                              {% endif %}">
+                        {{ tag_item.tag }} <span class="text-[10px] opacity-70">({{ tag_item.count }})</span>
                     </a>
                 {% endfor %}
             </div>
             {% endif %}
         </form>
     </div>
-    
+
     <!-- Results Count -->
-    <div class="flex items-center justify-between">
-        <div class="text-gray-600 dark:text-gray-400">
-            <span class="font-semibold text-gray-900 dark:text-white">{{ total }}</span> URL{{ 's' if total != 1 else '' }} found
+    <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
+        <div>
+            <span class="font-semibold text-slate-900 dark:text-slate-100">{{ total }}</span>
+            URL{{ 's' if total != 1 else '' }} found
             {% if search or selected_tag %}
-                <a href="{{ url_for('public.index') }}" class="ml-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
-                    Clear filters
+                <a href="{{ url_for('public.index') }}" class="ml-3 inline-flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Clear filters</span>
                 </a>
             {% endif %}
         </div>
+        {% if search %}
+            <div class="inline-flex items-center gap-1.5 rounded-full bg-slate-900 text-slate-100 dark:bg-slate-100 dark:text-slate-900 px-3 py-1 text-[11px]">
+                <span class="uppercase tracking-[0.16em] text-[10px] opacity-70">Query</span>
+                <span class="font-medium truncate max-w-[160px]">“{{ search }}”</span>
+            </div>
+        {% endif %}
     </div>
-    
+
     <!-- URL Grid -->
     {% if urls %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
             {% for url in urls %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div class="p-6">
+                <article class="glass-panel group rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition overflow-hidden flex flex-col h-full">
+                    <div class="p-5 sm:p-6 flex-1 flex flex-col">
                         <!-- Title -->
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                        <h3 class="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-50 mb-1.5 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
                             {{ url.title }}
                         </h3>
                         
                         <!-- Description -->
                         {% if url.description %}
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
                                 {{ url.description }}
                             </p>
                         {% endif %}
                         
                         <!-- Tags -->
                         {% if url.tags %}
-                            <div class="flex flex-wrap gap-2 mb-4">
+                            <div class="flex flex-wrap gap-1.5 mb-4">
                                 {% for tag in url.tags[:5] %}
-                                    <span class="px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">
+                                    <span class="px-2.5 py-1 bg-primary-50/80 dark:bg-primary-900/40 text-primary-700 dark:text-primary-200 text-[11px] font-medium rounded-full border border-primary-100/80 dark:border-primary-900/50">
                                         {{ tag }}
                                     </span>
                                 {% endfor %}
@@ -96,14 +178,14 @@
                         
                         <!-- URLs List -->
                         {% if url.urls %}
-                            <div class="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <div class="space-y-3 border-t border-slate-200 dark:border-slate-700 pt-4">
                                 {% for url_item in url.urls %}
                                     <div class="group">
                                         {% if url_item.subtitle %}
-                                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{{ url_item.subtitle }}</p>
+                                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{{ url_item.subtitle }}</p>
                                         {% endif %}
                                         <a href="{{ url_item.url }}" target="_blank" rel="noopener noreferrer" 
-                                           class="inline-flex items-center space-x-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm group">
+                                           class="inline-flex items-center space-x-2 text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 text-sm group">
                                             <span class="truncate">{{ url_item.url[:45] }}{% if url_item.url|length > 45 %}...{% endif %}</span>
                                             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -114,10 +196,10 @@
                             </div>
                         {% elif url.url %}
                             <!-- Backward compatibility: single URL -->
-                            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <div class="border-t border-slate-200 dark:border-slate-700 pt-4 mt-1">
                                 <a href="{{ url.url }}" target="_blank" rel="noopener noreferrer" 
-                                   class="inline-flex items-center space-x-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium group">
-                                    <span class="text-sm truncate">{{ url.url[:50] }}{% if url.url|length > 50 %}...{% endif %}</span>
+                                   class="inline-flex items-center space-x-2 text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium group">
+                                    <span class="text-sm truncate">{{ url.url[:56] }}{% if url.url|length > 56 %}...{% endif %}</span>
                                     <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                     </svg>
@@ -125,18 +207,18 @@
                             </div>
                         {% endif %}
                     </div>
-                </div>
+                </article>
             {% endfor %}
         </div>
         
     {% else %}
         <!-- Empty State -->
-        <div class="text-center py-16">
-            <svg class="w-24 h-24 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="text-center py-16 glass-panel rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+            <svg class="w-20 h-20 mx-auto text-slate-400 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No URLs found</h3>
-            <p class="text-gray-600 dark:text-gray-400">
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">No URLs found</h3>
+            <p class="text-slate-600 dark:text-slate-400">
                 {% if search or selected_tag %}
                     Try adjusting your filters or search query
                 {% else %}
