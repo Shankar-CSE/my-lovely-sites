@@ -42,7 +42,7 @@ A minimal, production-ready Flask application for organizing and browsing curate
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/<your-org-or-user>/<your-repo>.git
+   git clone https://github.com/Shankar-CSE/my-lovely-sites.git
    cd my-lovely-sites
    ```
 
