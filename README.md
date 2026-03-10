@@ -1,43 +1,55 @@
-# URL Organizer
+## URL Organizer
 
-A minimal Flask application to organize and manage URLs with a clean, modern dashboard.
+A minimal, production-ready Flask application for organizing and browsing curated URL collections, with a polished public catalog and an authenticated admin dashboard.
 
-## Features
+---
 
-- 📋 **Public URL Catalog** - Beautiful grid of organized URLs visible to everyone
-- 🔐 **Admin Authentication** - Secure login for admin access
-- ✏️ **CRUD Operations** - Create, read, update, and delete URLs
-- 🏷️ **Tag System** - Organize URLs with tags and filter by them
-- 🔍 **Search** - Find URLs quickly by title or description
-- 📊 **Dashboard Stats** - See total URLs, tags, and filtered counts
-- 🎨 **Modern UI** - Tailwind CSS with Google Fonts (Inter)
+### Screenshots
 
-## Tech Stack
+![Public catalog](./images/img1.png)
+![Admin dashboard](./images/img2.png)
 
-- **Backend**: Flask (Python)
-- **Database**: MongoDB
-- **Frontend**: Jinja2 templates + Tailwind CSS (CDN) + Google Fonts
-- **Authentication**: Session-based with argon2 password hashing
+---
 
-## Setup
+### Features
+
+- **Public URL catalog** – Responsive, searchable grid of organized URLs
+- **Admin dashboard** – Secure login, CRUD UI, and statistics for URLs and tags
+- **Collections & tags** – Group URLs into collections with subtitles and rich tagging
+- **Full‑text search** – Search by title, description, and URL
+- **Modern UI** – Tailwind‑powered layout, dark/light mode toggle, and clean admin table views
+- **Production ready** – Environment‑based config, health check, security headers, and Atlas‑friendly MongoDB setup
+
+---
+
+### Tech Stack
+
+- **Backend:** Flask (Python)
+- **Database:** MongoDB (Atlas or local)
+- **Views:** Jinja2 templates + Tailwind CSS (CDN) + Inter font
+- **Auth:** Session-based admin login with Argon2 password hashing
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
 - Python 3.8+
-- MongoDB (local or Atlas)
+- MongoDB (local instance or MongoDB Atlas cluster)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
-   cd url-organizer
+   git clone https://github.com/<your-org-or-user>/<your-repo>.git
+   cd my-lovely-sites
    ```
 
-2. **Create a virtual environment**
+2. **Create and activate a virtual environment**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate  # Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
@@ -49,136 +61,137 @@ A minimal Flask application to organize and manage URLs with a clean, modern das
    ```bash
    cp .env.example .env
    ```
-   
-   Edit `.env` and set:
-   - `MONGO_URI` - Your MongoDB connection string
-   - `SECRET_KEY` - A random secret key for sessions
-   - `ADMIN_USERNAME` - Your admin username
-   - `ADMIN_PASSWORD_HASH` - Generate using the script below
+
+   Update `.env` with your own values (see *Environment Variables* below).
 
 5. **Generate admin password hash**
    ```bash
    python scripts/hash_password.py
    ```
-   Copy the generated hash to `ADMIN_PASSWORD_HASH` in `.env`
+   Paste the generated hash into `ADMIN_PASSWORD_HASH` in `.env`.
 
-6. **Run the application**
+6. **Run the application (development)**
    ```bash
    python run.py
    ```
-   
-   The app will be available at `http://localhost:5000`
+
+   The app will be available at http://localhost:5000.
+
+---
 
 ## Usage
 
-### Public View
-- Visit `http://localhost:5000` to see the organized URL catalog
-- Click on any URL card to visit the link
-- Filter by tags by clicking on tag badges
+### Public catalog
 
-### Admin Access
-1. Navigate to `http://localhost:5000/admin/login`
-2. Login with your admin credentials
-3. Access the dashboard at `http://localhost:5000/admin`
-4. Add, edit, or delete URLs
-5. Search and filter your URL collection
+- Visit `/` to browse the URL catalog
+- Search by title, description, or URL
+- Filter by tags using the tag pills
+- Open links in a new tab from each card
+
+### Admin dashboard
+
+- Visit `/admin/login` and sign in with the admin credentials defined in `.env`
+- Manage URLs and collections at `/admin`:
+  - Create, edit, and delete URL collections
+  - Attach multiple URLs and subtitles to a single collection
+  - Tag URLs and filter by tags
+  - View basic stats: total URLs, tags, and current filtered count
+
+---
 
 ## Project Structure
 
-```
-url-organizer/
+```text
+my-lovely-sites/
 ├── app/
 │   ├── __init__.py          # Flask app factory
-│   ├── config.py            # Configuration
-│   ├── db.py                # MongoDB connection
+│   ├── config.py            # Configuration (dev/production)
+│   ├── db.py                # MongoDB connection and index management
 │   ├── repositories/
-│   │   └── url_repo.py      # Database operations
+│   │   └── url_repo.py      # URL repository abstraction
 │   ├── routes/
-│   │   ├── public.py        # Public routes
-│   │   ├── admin.py         # Admin routes
+│   │   ├── public.py        # Public/catalog routes
+│   │   ├── admin.py         # Admin dashboard routes
 │   │   └── auth.py          # Authentication routes
 │   ├── services/
-│   │   ├── auth_service.py  # Auth logic
+│   │   ├── auth_service.py  # Auth and password logic
 │   │   └── url_service.py   # URL business logic
 │   └── templates/
-│       ├── base.html        # Base template
+│       ├── base.html        # Shared layout, nav, and theme toggle
 │       ├── index.html       # Public catalog
-│       ├── login.html       # Login page
+│       ├── login.html       # Admin login
 │       ├── dashboard.html   # Admin dashboard
-│       └── url_form.html    # Create/Edit form
+│       └── url_form.html    # Create/edit URL collections
+├── api/
+│   └── index.py             # Vercel serverless entrypoint
 ├── scripts/
-│   ├── hash_password.py     # Generate password hash
-│   └── seed_data.py         # Seed sample data
-├── .env.example             # Environment template
-├── .gitignore
+│   ├── hash_password.py     # Generate Argon2 password hashes
+│   ├── seed_data.py         # Seed sample data
+│   └── fix_url_index.py     # Ensure correct MongoDB indexes
+├── .env.example             # Environment variable template
+├── DEPLOYMENT.md            # Detailed deployment options and examples
+├── PRODUCTION.md            # Production hardening and Ops notes
 ├── requirements.txt
-├── run.py                   # Application entry point
-└── README.md
+├── run.py                   # Local dev entrypoint
+└── vercel.json              # Vercel configuration
 ```
 
-## Optional: Seed Sample Data
-
-```bash
-python scripts/seed_data.py
-```
-
-This will add some sample URLs to get you started.
-
-## Deployment
-
-### Vercel (Recommended for Serverless)
-
-1. **Push your code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
-
-2. **Deploy to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Add environment variables in Vercel dashboard:
-     - `MONGO_URI` - Your MongoDB Atlas connection string
-     - `SECRET_KEY` - Generate a secure random string
-     - `ADMIN_USERNAME` - Your admin username
-     - `ADMIN_PASSWORD_HASH` - Generated hash from `scripts/hash_password.py`
-     - `FLASK_ENV` - Set to `production`
-   - Deploy!
-
-3. **Important**: Whitelist Vercel's IP addresses in MongoDB Atlas Network Access
-
-### Railway / Render / Fly.io
-
-1. **Connect your repository** to the platform
-2. **Set environment variables** (same as above)
-3. **Deploy** - The platform will automatically detect the Dockerfile or use the Procfile
-
-### Docker
-
-```bash
-# Build the image
-docker build -t url-organizer .
-
-# Run the container
-docker run -p 8000:8000 \
-  -e MONGO_URI="your_mongo_uri" \
-  -e SECRET_KEY="your_secret" \
-  -e ADMIN_USERNAME="admin" \
-  -e ADMIN_PASSWORD_HASH="your_hash" \
-  url-organizer
-```
+---
 
 ## Environment Variables
 
-Required environment variables for production:
+These are read from `.env` in development and from the process environment in production.
 
-- `MONGO_URI` - MongoDB connection string (Atlas recommended)
-- `SECRET_KEY` - Flask secret key (generate a random string)
-- `ADMIN_USERNAME` - Admin username
-- `ADMIN_PASSWORD_HASH` - Argon2 password hash
-- `FLASK_ENV` - Set to `production`
+| Name                | Required | Description                                      |
+|---------------------|----------|--------------------------------------------------|
+| `MONGO_URI`         | Yes      | MongoDB connection string (Atlas recommended)   |
+| `SECRET_KEY`        | Yes      | Flask secret key for sessions and CSRF          |
+| `ADMIN_USERNAME`    | Yes      | Admin login username                             |
+| `ADMIN_PASSWORD_HASH` | Yes   | Argon2 hash generated by `scripts/hash_password.py` |
+| `FLASK_ENV`         | No       | `development` or `production`                   |
+| `PORT`              | No       | Port for some deployment targets (default 5000) |
+
+See `.env.example` for a documented template.
+
+---
+
+## Deployment
+
+This project is designed to run both on traditional servers and on serverless platforms like Vercel.
+
+- For a step‑by‑step Vercel, Railway, Render, and Docker walkthrough, see:
+  - DEPLOYMENT.md – platform‑specific deployment guide
+  - PRODUCTION.md – production configuration and hardening
+
+At a high level you will need to:
+
+1. Provision a MongoDB database (MongoDB Atlas is recommended).
+2. Set all required environment variables on your hosting platform.
+3. Build and start the app using Gunicorn or the provided serverless entrypoint.
+
+---
+
+## Contributing
+
+Contributions, bug reports, and feature requests are welcome.
+
+Please read CONTRIBUTING.md for:
+
+- Local development workflow
+- Code style and formatting
+- How to propose changes (issues & pull requests)
+- Recommendations for adding tests and docs
+
+---
+
+## Security
+
+- Never commit real secrets or production `MONGO_URI` values to the repository.
+- Always use a strong, unique admin password and rotate `SECRET_KEY` in production.
+- If you discover a security vulnerability, please reach out privately to the maintainer instead of opening a public issue first.
+
+---
 
 ## License
 
-MIT
+Specify your project license here (for example, MIT, Apache 2.0, etc.) and add a matching `LICENSE` file in the repository root.
